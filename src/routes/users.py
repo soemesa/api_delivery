@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from src.database import get_session
 from src.models import User
-from src.schemas import UserSchema, DefaultOut, UserList, UserPublic
+from src.schemas import UserSchema, Message, UserList, UserPublic
 
 router = APIRouter(
     prefix='/users',
@@ -16,7 +16,7 @@ router = APIRouter(
 Session = Annotated[Session, Depends(get_session)]
 
 
-@router.post('/', response_model=DefaultOut, status_code=201)
+@router.post('/', response_model=Message, status_code=201)
 def create_user(user: UserSchema, session: Session):
     db_user = session.scalar(
         select(User).where(User.username == user.username))
@@ -31,7 +31,7 @@ def create_user(user: UserSchema, session: Session):
     session.commit()
     session.refresh(db_user)
 
-    return DefaultOut(message='Usuário registrado com sucesso!')
+    return Message(message='Usuário registrado com sucesso!')
 
 
 @router.get('/', response_model=None, status_code=200)
@@ -41,7 +41,7 @@ def read_users(session: Session, skip: int = 0, limit: int = 100):
     return {'users': users}
 
 
-@router.put('/{user_id}', response_model=DefaultOut, status_code=200)
+@router.put('/{user_id}', response_model=Message, status_code=200)
 def update_user(user_id: int, user: UserSchema, session: Session):
     db_user = session.scalar(select(User).where(User.id == user_id))
     if not db_user:
@@ -54,5 +54,17 @@ def update_user(user_id: int, user: UserSchema, session: Session):
     session.commit()
     session.refresh(db_user)
 
-    return DefaultOut(message='Usuário atualizado com sucesso!')
+    return Message(message='Usuário atualizado com sucesso!')
 
+
+@router.delete('/{user_id}', response_model=Message, status_code=200)
+def delete_user(user_id: int, session: Session):
+    db_user = session.scalar(select(User).where(User.id == user_id))
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail='Usuário não encontrado!')
+
+    session.delete(db_user)
+    session.commit()
+
+    return Message(message='Usuário apagado com sucesso!')

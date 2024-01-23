@@ -14,7 +14,7 @@ class UserPublic(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class DefaultOut(BaseModel):
+class Message(BaseModel):
     message: str
 
 
