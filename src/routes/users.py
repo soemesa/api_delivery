@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from src.database import get_session
 from src.models import User
-from src.schemas import UserSchema, DefaultOut
+from src.schemas import UserSchema, DefaultOut, UserList
 
 router = APIRouter(
     prefix='/auth',
@@ -34,3 +34,8 @@ def create_user(user: UserSchema, session: Session):
     return DefaultOut(message='Usuário registrado com sucesso!')
 
 
+@router.get('/users', response_model=None, status_code=200)
+def read_users(session: Session, skip: int = 0, limit: int = 100):
+    users = session.scalars(select(User). offset(skip).limit(limit)).all()
+
+    return users
