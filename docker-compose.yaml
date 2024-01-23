@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:14.1-alpine
+    container_name: account-management_postgres_db
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=wasaloko
+      - POSTGRES_DB=pizzaria_db
+    ports:
+      - "5432:5432"
+    networks:
+      - minha_rede
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    restart: unless-stopped
+
+networks:
+  minha_rede:
+    name: minha_rede
+volumes:
+  postgres_data:
+
