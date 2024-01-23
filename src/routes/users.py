@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from src.database import get_session
 from src.models import User
 from src.schemas import UserSchema, Message, UserList, UserPublic
+from src.security import get_password_hash
 
 router = APIRouter(
     prefix='/users',
@@ -23,8 +24,10 @@ def create_user(user: UserSchema, session: Session):
     if db_user:
         raise HTTPException(status_code=400, detail='Usuário já registrado!')
 
+    hashed_password = get_password_hash(user.password)
+
     db_user = User(
-        username=user.username, email=user.email, password=user.password
+        username=user.username, email=user.email, password=hashed_password
     )
 
     session.add(db_user)
@@ -49,7 +52,7 @@ def update_user(user_id: int, user: UserSchema, session: Session):
 
     db_user.username = user.username
     db_user.email = user.email
-    db_user.password = user.password
+    db_user.password = get_password_hash(user.password)
 
     session.commit()
     session.refresh(db_user)
